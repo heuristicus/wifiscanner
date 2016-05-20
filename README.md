@@ -1,6 +1,6 @@
 # wifiscanner
 
-This will publish data from `iwlist scanning` on a topic. Simply run as `rosrun wifiscanner wifiscanner.py`.
+This will publish data from `iwlist scanning` on a topic (published every 5 seconds, hard-coded at the moment). Simply run as `rosrun wifiscanner wifiscanner.py`.
 
 Parameters:
 
