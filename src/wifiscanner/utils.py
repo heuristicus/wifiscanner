@@ -16,7 +16,7 @@ def get_iwconf_data(interface):
 
     :param interface: String of the network interface for which to gather data
     """
-    iwconf_pattern = "^.*ESSID:\"(.*)\"  \n.*Frequency:(\d+.\d+ \w+).*Access Point: (.*)   \n.*Bit Rate=(\d+.*\d+ \w+\/s).*Tx-.*\n.*\n.*\n.*Link Quality=(\d+\/\d+).*Signal level=(.*)  \n"
+    iwconf_pattern = "^.*ESSID:\"(.*)\"  \n.*Frequency:(\d+.\d+ \w+).*Access Point: ([0-9ABCDEF:]+).*\n.*Bit Rate=(\d*\.*\d* [A-Za-z]*\/s).*Tx-.*\n.*\n.*\n.*Link Quality=(\d+\/\d+).*Signal level=(.*)  \n"
     iwconf_cmd = "iwconfig {0}".format(interface).split()
     parser_iwconfig = re.compile(iwconf_pattern, re.MULTILINE)
 
@@ -45,7 +45,9 @@ def get_iwlist_data(interface, check_essid=None):
     point data for access points with the given ESSID
 
     """
-    iwlist_pattern = '^.*Cell (\d+) - Address: ([0-9ABCDEF:]+).*\n.*Channel:(\d+)\n.*\n.*Quality=(\d+)/(\d+).*Signal level=(-[0-9]+).*\n.*\n.*ESSID:"(.+)".*$'
+    # This regex will not get data for any device which does not have an ESSID
+    # (I guess those are hidden?)
+    iwlist_pattern = '^.*Cell (\d+) - Address: ([0-9ABCDEF:]+).*\n.*Channel:(\d+)\n.*\n.*Quality=(\d+\/\d+).*Signal level=([-0-9]+).*\n.*\n.*ESSID:"(.+)"'
     # To run this command without sudo requiring a password, add
     # ALL ALL=(ALL) NOPASSWD: /sbin/iwlist
     # to sudoers with sudo visudo
@@ -61,7 +63,6 @@ def get_iwlist_data(interface, check_essid=None):
              iwlist_info['bssid'],
              iwlist_info['channel'],
              iwlist_info['quality'],
-             dummy,
              iwlist_info['signal'],
              iwlist_info['essid']) = match.groups()
             # If monitoring a specific essid, only output the data for that essid, and ignore all the others.
